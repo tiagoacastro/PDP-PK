@@ -3,19 +3,19 @@
 #include <pthread.h>
 #include <errno.h>
 #include <unistd.h>  
+#include <math.h>
 #include "tmeas.h" 
 /*
 --------------------------------------------------------------------------------------
 Commands to run the program:
-    • gcc -g -Wall tmeas.c -o 2 2.c -lpthread
-    • ./2 <number of subintervals of integration>
+    • gcc -g -Wall tmeas.c -o 3 3.c -lpthread -lm
+    • ./3 <value of x> <limit of somatory (n)>
 --------------------------------------------------------------------------------------
 */
 
-#define A 0
-#define B 1
-
-//number of subintervals
+//value of x
+int x;
+//limit of somatory
 int n;
 //mutex
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -23,18 +23,6 @@ pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 float sum;
 //number of threads stored globaly for access in thread
 int nthreads;
-//length of each subinterval
-float step;
-
-//function
-double f(double x){
-    return 1./(1+x*x);
-}
-
-//trapezoid function
-double t(){
-    return step*sum/2.;
-}
 
 //function for calculating each subinterval value
 void* thread(void* number) {
@@ -46,23 +34,20 @@ void* thread(void* number) {
     //local sum
     float localSum = 0;
 
-    
-
     printf("Thread %d calculating from %d to %d\n", nthread, start, end-1);
-
+    
     for (int i = start; i < end; i++){
-        //first thread's first computation isn't multiplied by 2
-        if(i == 0)
-            localSum += f(A);
-        else
-            localSum += 2*f(A+step*i);
+        long double exp = pow(x,i);
+        long long int fact = 1;
+        for (int j = 1; j <= i; j++) {
+            if(j < 21)
+                fact *= j;                                                  //Max number factorized that long long int can handle is 20
+            else
+                exp /= j;                                                   //After that, division passes on to exp
+        }
 
-        //printf("%f - %f\n", A+step*i, f(A+step*i));
+        localSum += (float) exp/fact;
     }
-
-    //last thread computes also the last one
-    if(end == n)
-        localSum += f(B);
 
     pthread_mutex_lock(&mutex);
         sum += localSum;
@@ -96,7 +81,7 @@ int execution(){
 
     float ts = tstop();
 
-    printf("Result: %f\nTime: %f\n\n", t()*4, ts);
+    printf("Result: %f\nTime: %f\n\n", sum, ts);
 
     return 0;
 }
@@ -104,16 +89,16 @@ int execution(){
 int main(int argc, char **argv)
 {
     //Input check
-	if(argc != 2)
+	if(argc != 3)
         return(-1);
-    else
-        sscanf (argv[1],"%d",&n);
-
-    step = 1./n;
+    else{
+        sscanf (argv[1],"%d",&x);
+        sscanf (argv[2],"%d",&n);
+    }
 
     //----------------------- 1 thread -----------------------
     if(n < 1){
-        printf("Number of subintervals is too small to run program with %d threads\n", n);
+        printf("limit of somatory is too small to run program with %d threads\n", n);
     } else {
         nthreads = 1;
         if(execution() == EXIT_FAILURE)
@@ -122,7 +107,7 @@ int main(int argc, char **argv)
 
     //----------------------- 2 threads -----------------------
     if(n < 2){
-        printf("Number of subintervals is too small to run program with %d threads\n", n);
+        printf("limit of somatory is too small to run program with %d threads\n", n);
     } else {
         nthreads = 2;
         if(execution() == EXIT_FAILURE)
@@ -131,7 +116,7 @@ int main(int argc, char **argv)
 
     //----------------------- 4 threads -----------------------
     if(n < 4){
-        printf("Number of subintervals is too small to run program with %d threads\n", n);
+        printf("limit of somatory is too small to run program with %d threads\n", n);
     } else {
         nthreads = 4;
         if(execution() == EXIT_FAILURE)
@@ -140,7 +125,7 @@ int main(int argc, char **argv)
 
     //----------------------- 6 threads -----------------------
     if(n < 6){
-        printf("Number of subintervals is too small to run program with %d threads\n", n);
+        printf("limit of somatory is too small to run program with %d threads\n", n);
     } else {
         nthreads = 6;
         if(execution() == EXIT_FAILURE)
@@ -149,7 +134,7 @@ int main(int argc, char **argv)
 
     //----------------------- 8 threads -----------------------
     if(n < 8){
-        printf("Number of subintervals is too small to run program with %d threads\n", n);
+        printf("limit of somatory is too small to run program with %d threads\n", n);
     } else {
         nthreads = 8;
         if(execution() == EXIT_FAILURE)
