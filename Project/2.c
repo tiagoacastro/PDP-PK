@@ -9,6 +9,8 @@
 Commands to run the program:
     • gcc -g -Wall tmeas.c -o 2 2.c -lpthread
     • ./2 <number of subintervals of integration>
+
+Integration interval can be edited in the macros A and B.
 --------------------------------------------------------------------------------------
 */
 
@@ -46,8 +48,6 @@ void* thread(void* number) {
     //local sum
     float localSum = 0;
 
-    
-
     printf("Thread %d calculating from %d to %d\n", nthread, start, end-1);
 
     for (int i = start; i < end; i++){
@@ -60,10 +60,11 @@ void* thread(void* number) {
         //printf("%f - %f\n", A+step*i, f(A+step*i));
     }
 
-    //last thread computes also the last one
+    //last thread computes also the last one which also isn't multiplied by 2 like the first one
     if(end == n)
         localSum += f(B);
 
+    //add local sum to global sum
     pthread_mutex_lock(&mutex);
         sum += localSum;
     pthread_mutex_unlock(&mutex);
@@ -109,7 +110,8 @@ int main(int argc, char **argv)
     else
         sscanf (argv[1],"%d",&n);
 
-    step = 1./n;
+    //calculate the step while casting n to float so result isn't truncated
+    step = (B-A)/(float)n;
 
     //----------------------- 1 thread -----------------------
     if(n < 1){

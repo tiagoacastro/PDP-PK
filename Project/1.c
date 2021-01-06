@@ -187,7 +187,7 @@ int main(int argc, char **argv)
             *token = 1;
         else 
             *token = 0;
-        //if the elevator is idle, asks for a place to go
+        //if the elevator is idle, asks for a place to go, if not, informs them that it is not idle anyway
         MPI_Bcast(token,1,MPI_INT,0,MPI_COMM_WORLD);
         int idle = false;
         if(*token == 1){
@@ -195,7 +195,7 @@ int main(int argc, char **argv)
             print = false;
         }
 
-        //first process whose message is received decides the destination
+        //if the elevator is idle, first process whose message is received decides the destination
         if(idle){
             if(rank == 0){
                 bool notChosen = true;
@@ -207,6 +207,7 @@ int main(int argc, char **argv)
                     }
                 }   
             } else {
+                //people already in their destination send -1 and people still waiting send their location
                 if(out){
                     *token = -1;
                     MPI_Send(token,1,MPI_INT,0,0,MPI_COMM_WORLD);
@@ -217,6 +218,7 @@ int main(int argc, char **argv)
             }
         }
 
+        //elevator moves unless it is idle (will move after another iteration)
         if(rank == 0 && !idle){
             if(to > floor)
                 floor++;

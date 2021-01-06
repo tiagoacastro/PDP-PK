@@ -9,6 +9,8 @@
 Commands to run the program:
     • gcc -g -Wall -o 4 4.c -lpthread -lm
     • ./4 <number of elements of the sum>
+
+Number of processes is editable in the macro P.
 --------------------------------------------------------------------------------------
 */
 
@@ -21,7 +23,7 @@ pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 //sum
 float sum;
 
-//function for calculating each subinterval value
+//function for calculating each interval value
 void* thread(void* number) {
     int nthread = (int) number;
     //starting point for the thread
@@ -31,11 +33,13 @@ void* thread(void* number) {
     //local sum
     float localSum = 0;
 
+    //iterate all numbers in the inteval and add to the local sum
     for (int i = start; i <= end; i++)
         localSum += 1./i;
 
     printf("Thread %d calculated from %d to %d: %f\n", nthread, start, end, localSum);
 
+    //add local sum to global sum
     pthread_mutex_lock(&mutex);
         sum += localSum;
     pthread_mutex_unlock(&mutex);

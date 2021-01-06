@@ -24,7 +24,7 @@ float sum;
 //number of threads stored globaly for access in thread
 int nthreads;
 
-//function for calculating each subinterval value
+//function for calculating each interval value
 void* thread(void* number) {
     int nthread = (int) number;
     //starting point for the thread
@@ -36,19 +36,24 @@ void* thread(void* number) {
 
     printf("Thread %d calculating from %d to %d\n", nthread, start, end-1);
     
+    //iterate all numbers in the inteval and add to the local sum of the interval
     for (int i = start; i < end; i++){
         long double exp = pow(x,i);
         long long int fact = 1;
         for (int j = 1; j <= i; j++) {
             if(j < 21)
-                fact *= j;                                                  //Max number factorized that long long int can handle is 20
+                //Max number factorized that long long int can handle is 20
+                fact *= j;                                                
             else
-                exp /= j;                                                   //After that, division passes on to exp
+                //After that, division passes on to exp for a better result
+                exp /= j;                                                 
         }
 
+        //calculate the value of the sum of the interval
         localSum += (float) exp/fact;
     }
 
+    //add local sum to global sum
     pthread_mutex_lock(&mutex);
         sum += localSum;
     pthread_mutex_unlock(&mutex);
@@ -60,6 +65,7 @@ int execution(){
     pthread_t id[nthreads];
     sum = 0;
 
+    //start time count
     tstart();
 
     //thread setup
@@ -79,6 +85,7 @@ int execution(){
         }
     }
 
+    //stop time count
     float ts = tstop();
 
     printf("Result: %f\nTime: %f\n\n", sum, ts);
