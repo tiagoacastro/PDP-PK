@@ -17,7 +17,7 @@ Commands to run the program
 
 The lift is in a 6 floor building and starts at the second floor and can take up to 5 people. All of this is editable above.
 The lift, if it has someone at the floor it is in, will grab the people there as long as they want to go the same way as the
-the person who first contacted the elevator. In the case of the elevator arriving its destination, it will let any people 
+person who first contacted the elevator. In the case of the elevator arriving its destination, it will let any people 
 there waiting for it decide the next stop. If there is no one there, it will go to the spot where the first person that 
 "presses the button" says. For example, if the elevator is in 2 and is going to 4, but in 3 finds someone going to 5, 
 it will drop off the first person at 4 and continue to 5 grabing anyone else in the way that is going the same way. 

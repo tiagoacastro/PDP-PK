@@ -39,7 +39,7 @@ void* thread(void* number) {
     //iterate all numbers in the inteval and add to the local sum of the interval
     for (int i = start; i < end; i++){
         long double exp = pow(x,i);
-        long long int fact = 1;
+        unsigned long long int fact = 1;
         for (int j = 1; j <= i; j++) {
             if(j < 21)
                 //Max number factorized that long long int can handle is 20
